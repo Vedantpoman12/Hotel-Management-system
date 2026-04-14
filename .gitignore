@@ -1,0 +1,24 @@
+# Build outputs
+hotel-dashboard/dist/
+hotel-dashboard/.vite/
+demo/target/
+
+# Dependencies
+hotel-dashboard/node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Java compiled classes (keep only source)
+demo/src/main/java/com/example/hotelmanagement/*.class
