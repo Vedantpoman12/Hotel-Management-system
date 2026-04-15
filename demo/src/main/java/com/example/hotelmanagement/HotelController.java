@@ -99,7 +99,7 @@ public class HotelController {
             String lastName  = payload.getOrDefault("lastName", "").toString();
             String name      = (firstName + " " + lastName).trim();
             String contact   = payload.getOrDefault("phone", "N/A").toString();
-            String idProof   = payload.getOrDefault("email", "N/A").toString();
+            String idProof   = payload.getOrDefault("idProof", "N/A").toString();
             int duration     = Integer.parseInt(payload.getOrDefault("nights", "1").toString());
 
             Guest guest  = new Guest(name, contact, idProof);

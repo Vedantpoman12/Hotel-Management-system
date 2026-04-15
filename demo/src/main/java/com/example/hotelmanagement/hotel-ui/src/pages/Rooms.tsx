@@ -13,7 +13,7 @@ const Rooms = () => {
     firstName: "",
     lastName: "",
     phone: "",
-    email: "",
+    idProof: "",
     nights: 1
   });
 
@@ -48,7 +48,7 @@ const Rooms = () => {
       });
       alert(`Room ${selectedRoom.roomNumber} booked successfully!`);
       setSelectedRoom(null);
-      setFormData({ firstName: "", lastName: "", phone: "", email: "", nights: 1 });
+      setFormData({ firstName: "", lastName: "", phone: "", idProof: "", nights: 1 });
       fetchRooms();
     } catch (error: any) {
       alert(error.response?.data?.message || "Booking failed");
@@ -180,13 +180,13 @@ const Rooms = () => {
                             />
                         </div>
                         <div className="space-y-1">
-                            <label className="text-[10px] uppercase text-stone-500 font-bold tracking-widest ml-1">Email / ID Proof</label>
+                            <label className="text-[10px] uppercase text-stone-500 font-bold tracking-widest ml-1">ID Proof</label>
                             <input 
                                 required
-                                type="email"
+                                type="text"
                                 className="w-full bg-stone-800 border border-stone-700 rounded-xl px-4 py-3 text-stone-100 focus:outline-none focus:border-amber-500/50 transition-colors"
-                                value={formData.email}
-                                onChange={e => setFormData({...formData, email: e.target.value})}
+                                value={formData.idProof}
+                                onChange={e => setFormData({...formData, idProof: e.target.value})}
                             />
                         </div>
                         <div className="space-y-1">
@@ -216,4 +216,4 @@ const Rooms = () => {
   );
 };
 
-export default Rooms;
+export default Rooms;

@@ -152,7 +152,7 @@ const Bookings = () => {
                         </div>
                         <h3 className="text-xl font-bold text-stone-100 mb-1">{g.name}</h3>
                         <p className="text-stone-500 text-xs mb-4 flex items-center gap-1.5 uppercase tracking-widest font-bold">
-                            <MapPin size={12} /> {g.idProof.split('@')[0]} {/* Simple simulation of location from email */}
+                            <MapPin size={12} /> {g.idProof || "N/A"}
                         </p>
                         
                         <div className="space-y-3 pt-4 border-t border-stone-800">
