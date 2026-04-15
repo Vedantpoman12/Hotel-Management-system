@@ -2,12 +2,12 @@ package com.example.hotelmanagement;
 
 public class DeluxeRoom extends Room {
     public DeluxeRoom(int roomNumber) {
-        super(roomNumber, 200.0);
+        super(roomNumber, 2800.0);
     }
 
     @Override
     public double calculateBill(int duration) {
-        return getBasePrice() * duration + 50.0; // Fixed mini-bar/balcony charge per stay
+        return getBasePrice() * duration + 500.0; // Fixed mini-bar/balcony charge per stay
     }
 
     @Override

@@ -2,12 +2,12 @@ package com.example.hotelmanagement;
 
 public class Suite extends Room {
     public Suite(int roomNumber) {
-        super(roomNumber, 500.0);
+        super(roomNumber, 4500.0);
     }
 
     @Override
     public double calculateBill(int duration) {
-        return getBasePrice() * duration + 200.0; // Luxury service charge per stay
+        return getBasePrice() * duration + 1000.0; // Luxury service charge per stay
     }
 
     @Override
