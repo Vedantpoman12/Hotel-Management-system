@@ -28,12 +28,38 @@ public class HotelController {
             r.put("basePrice", room.getBasePrice());
             r.put("occupied", room.isOccupied());
             r.put("status", room.isOccupied() ? "occupied" : "available");
-            // Attach guest name if booked
+            // Attach guest details if booked
             String guestName = hotelService.getGuestForRoom(room.getRoomNumber());
             r.put("guest", guestName);
             result.add(r);
         }
         return result;
+    }
+
+    @PostMapping("/rooms")
+    public ResponseEntity<String> addRoom(@RequestBody Map<String, Object> payload) {
+        try {
+            int num = Integer.parseInt(payload.get("roomNumber").toString());
+            String type = payload.getOrDefault("type", "Standard").toString();
+            
+            Room room;
+            if (type.equalsIgnoreCase("Deluxe")) room = new DeluxeRoom(num);
+            else if (type.equalsIgnoreCase("Suite")) room = new Suite(num);
+            else room = new StandardRoom(num);
+            
+            hotelService.addRoom(room);
+            return ResponseEntity.ok("Room " + num + " added successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/rooms/{roomNumber}")
+    public ResponseEntity<String> removeRoom(@PathVariable int roomNumber) {
+        if (hotelService.removeRoom(roomNumber)) {
+            return ResponseEntity.ok("Room " + roomNumber + " removed.");
+        }
+        return ResponseEntity.badRequest().body("Room not found or currently occupied.");
     }
 
     // ─── Bookings ──────────────────────────────────────────────────────
@@ -42,10 +68,18 @@ public class HotelController {
         List<Map<String, Object>> result = new ArrayList<>();
         for (Booking b : hotelService.getBookings()) {
             Map<String, Object> bMap = new LinkedHashMap<>();
-            bMap.put("room", b.getRoom().getRoomNumber());
-            bMap.put("roomType", b.getRoom().getRoomType());
-            bMap.put("guestName", b.getGuest().getName());
-            bMap.put("guestContact", b.getGuest().getContactNumber());
+            
+            Map<String, Object> gMap = new LinkedHashMap<>();
+            gMap.put("name", b.getGuest().getName());
+            gMap.put("contactNumber", b.getGuest().getContactNumber());
+            gMap.put("idProof", b.getGuest().getIdProof());
+            bMap.put("guest", gMap);
+
+            Map<String, Object> rMap = new LinkedHashMap<>();
+            rMap.put("roomNumber", b.getRoom().getRoomNumber());
+            rMap.put("roomType", b.getRoom().getRoomType());
+            bMap.put("room", rMap);
+
             bMap.put("duration", b.getDuration());
             bMap.put("checkIn", b.getCheckInDate().toString());
             bMap.put("checkOut", b.getCheckOutDate().toString());
@@ -109,5 +143,11 @@ public class HotelController {
     @GetMapping("/stats")
     public Map<String, Object> getStats() {
         return hotelService.getDashboardStats();
+    }
+
+    // ─── Guest Management ─────────────────────────────────────────────
+    @GetMapping("/guests")
+    public List<Guest> getAllGuests() {
+        return hotelService.getAllGuests();
     }
 }

@@ -12,10 +12,12 @@ import org.springframework.stereotype.Service;
 public class HotelManager {
     private final List<Room>    rooms;
     private final List<Booking> bookings;
+    private final List<Guest>   allGuests;
 
     public HotelManager() {
-        rooms    = new ArrayList<>();
-        bookings = new ArrayList<>();
+        rooms     = new ArrayList<>();
+        bookings  = new ArrayList<>();
+        allGuests = new ArrayList<>();
         initializeRooms();
     }
 
@@ -33,6 +35,10 @@ public class HotelManager {
                 if (!room.isOccupied()) {
                     room.checkIn();
                     bookings.add(new Booking(guest, room, LocalDate.now(), duration));
+                    // Store in allGuests if new
+                    boolean exists = allGuests.stream()
+                        .anyMatch(g -> g.getContactNumber().equals(guest.getContactNumber()));
+                    if (!exists) allGuests.add(guest);
                     return true;
                 }
                 return false;
@@ -112,4 +118,20 @@ public class HotelManager {
     // ─── Accessors ─────────────────────────────────────────────────────
     public List<Room>    getRooms()    { return rooms; }
     public List<Booking> getBookings() { return bookings; }
+    public List<Guest>   getAllGuests() { return allGuests; }
+
+    // ─── Room Management ───────────────────────────────────────────────
+    public void addRoom(Room room) {
+        rooms.add(room);
+    }
+
+    public boolean removeRoom(int roomNumber) {
+        return rooms.removeIf(r -> r.getRoomNumber() == roomNumber && !r.isOccupied());
+    }
+
+    public boolean updateRoomPrice(int roomNumber, double newPrice) {
+        // Since Room stores basePrice as final, we'd need to modify Room.java
+        // For now, let's keep it simple or modify Room.java later.
+        return false;
+    }
 }
