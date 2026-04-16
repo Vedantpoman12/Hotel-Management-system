@@ -1,0 +1,13 @@
+node_modules
+target
+.git
+.mvn
+*.txt
+*.md
+.gitignore
+.gitattributes
+mvnw
+mvnw.cmd
+system.properties
+railway.json
+render.yaml
