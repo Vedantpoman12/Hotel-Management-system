@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: hotel-management-system
+    runtime: docker
+    plan: free
+    region: oregon
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: REACT_APP_API_URL
+        value: "" # Empty means relative path /api
