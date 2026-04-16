@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { DoorOpen, LogIn, LogOut, Info, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const API_BASE = "http://localhost:8080/api";
+const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8080/api";
 
 const Rooms = () => {
+  const location = useLocation();
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedRoom, setSelectedRoom] = useState<any>(null);
@@ -28,6 +30,16 @@ const Rooms = () => {
   };
 
   useEffect(() => { fetchRooms(); }, []);
+
+  useEffect(() => {
+    if (location.state?.selectedRoom) {
+      const room = location.state.selectedRoom;
+      // Only auto-open modal if the room is not occupied
+      if (!room.occupied) {
+        setSelectedRoom(room);
+      }
+    }
+  }, [location]);
 
   const handleCheckOut = async (roomNumber: number) => {
     try {
@@ -54,6 +66,8 @@ const Rooms = () => {
       alert(error.response?.data?.message || "Booking failed");
     }
   };
+
+  if (loading) return <div className="h-screen flex items-center justify-center bg-stone-900 text-white">Loading...</div>;
 
   return (
     <div className="space-y-6">

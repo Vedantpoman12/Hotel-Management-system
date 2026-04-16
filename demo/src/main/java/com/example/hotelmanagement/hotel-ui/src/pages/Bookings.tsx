@@ -3,7 +3,7 @@ import axios from "axios";
 import { User, Calendar, Phone, History, MapPin, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const API_BASE = "http://localhost:8080/api";
+const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8080/api";
 
 const Bookings = () => {
   const [activeBookings, setActiveBookings] = useState([]);

@@ -4,7 +4,7 @@ import { Bed, IndianRupee, Users, CheckCircle2, TrendingUp, ArrowRight, Clock } 
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE = "http://localhost:8080/api";
+const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8080/api";
 
 interface Room {
   roomNumber: number;
@@ -171,7 +171,7 @@ const Dashboard = () => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: i * 0.02 }}
               whileHover={{ y: -4 }}
-              onClick={() => navigate("/admin/rooms")}
+              onClick={() => navigate("/admin/rooms", { state: { selectedRoom: room } })}
               className="bg-stone-900/80 border border-stone-800 rounded-2xl overflow-hidden shadow-xl cursor-pointer group hover:border-stone-700 transition-all"
             >
               <div className={`h-1.5 ${room.occupied ? 'bg-amber-500' : 'bg-emerald-500'}`} />
