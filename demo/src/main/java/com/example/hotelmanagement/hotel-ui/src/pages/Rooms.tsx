@@ -4,7 +4,7 @@ import axios from "axios";
 import { DoorOpen, LogIn, LogOut, Info, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8080/api";
+const API_BASE = process.env.REACT_APP_API_URL || "/api";
 
 const Rooms = () => {
   const location = useLocation();
