@@ -13,7 +13,7 @@ const Cleaning = () => {
         try {
             const response = await axios.get(`${API_BASE}/rooms`);
             // Only show Cleaning or Maintenance rooms
-            setRooms(response.data.filter((r: any) => r.status === 'CLEANING' || r.status === 'MAINTENANCE'));
+            setRooms(response.data.filter((r: any) => String(r.status).toUpperCase() === 'CLEANING' || String(r.status).toUpperCase() === 'MAINTENANCE'));
             setLoading(false);
         } catch (error) {
             console.error("Error fetching cleaning status", error);

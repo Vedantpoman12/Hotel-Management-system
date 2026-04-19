@@ -13,11 +13,13 @@ public class HotelManager {
     private final List<Room>    rooms;
     private final List<Booking> bookings;
     private final List<Guest>   allGuests;
+    private final List<ExtraService> servicesList;
 
     public HotelManager() {
         rooms     = new ArrayList<>();
         bookings  = new ArrayList<>();
         allGuests = new ArrayList<>();
+        servicesList = new ArrayList<>();
         initializeRooms();
     }
 
@@ -32,7 +34,7 @@ public class HotelManager {
     public boolean bookRoom(int roomNumber, Guest guest, int duration) {
         for (Room room : rooms) {
             if (room.getRoomNumber() == roomNumber) {
-                if (!room.isOccupied()) {
+                if (room.getStatus() == RoomStatus.AVAILABLE) {
                     room.checkIn();
                     bookings.add(new Booking(guest, room, LocalDate.now(), duration));
                     // Store in allGuests if new
@@ -132,6 +134,61 @@ public class HotelManager {
     public boolean updateRoomPrice(int roomNumber, double newPrice) {
         // Since Room stores basePrice as final, we'd need to modify Room.java
         // For now, let's keep it simple or modify Room.java later.
+        return false;
+    }
+
+    // ─── Extra Services ────────────────────────────────────────────────
+    public boolean addServiceToRoom(int roomNumber, String serviceName, double price) {
+        Booking found = null;
+        for (Booking b : bookings) {
+            if (b.getRoom().getRoomNumber() == roomNumber) {
+                found = b;
+                break;
+            }
+        }
+        if (found == null) return false;
+
+        ExtraService s = new ExtraService(serviceName, price, found);
+        s.setId((long) (servicesList.size() + 1));
+        servicesList.add(s);
+        return true;
+    }
+
+    public List<Map<String, Object>> getPendingServices() {
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (ExtraService s : servicesList) {
+            if ("PENDING".equals(s.getStatus())) {
+                Map<String, Object> map = new LinkedHashMap<>();
+                map.put("id", s.getId());
+                map.put("serviceName", s.getServiceName());
+                map.put("price", s.getPrice());
+                map.put("roomNumber", s.getBooking().getRoom().getRoomNumber());
+                map.put("guest", s.getBooking().getGuest().getName());
+                list.add(map);
+            }
+        }
+        return list;
+    }
+
+    public boolean completeService(long id) {
+        for (ExtraService s : servicesList) {
+            if (s.getId() != null && s.getId() == id) {
+                s.setStatus("COMPLETED");
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // ─── Cleaning ──────────────────────────────────────────────────────
+    public boolean markRoomReady(int roomNumber) {
+        for (Room r : rooms) {
+            if (r.getRoomNumber() == roomNumber) {
+                // Should only be ready if it's currently cleaning or maintenance
+                r.setStatus(RoomStatus.AVAILABLE);
+                return true;
+            }
+        }
         return false;
     }
 }

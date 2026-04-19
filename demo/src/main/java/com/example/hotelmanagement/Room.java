@@ -39,7 +39,7 @@ public abstract class Room implements Billable {
     }
     public void checkOut() { 
         this.isOccupied = false; 
-        this.status = RoomStatus.AVAILABLE;
+        this.status = RoomStatus.CLEANING;
     }
 
     public abstract String getRoomType();

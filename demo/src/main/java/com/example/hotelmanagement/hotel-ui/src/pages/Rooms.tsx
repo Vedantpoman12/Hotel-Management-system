@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
-import { DoorOpen, LogIn, LogOut, Info, X } from "lucide-react";
+import { DoorOpen, LogIn, LogOut, Info, X, CheckCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const API_BASE = process.env.REACT_APP_API_URL || "/api";
+const API_BASE = "http://localhost:8080/api";
 
 const Rooms = () => {
   const location = useLocation();
@@ -18,6 +18,8 @@ const Rooms = () => {
     idProof: "",
     nights: 1
   });
+  const [roomCredentials, setRoomCredentials] = useState<any>(null);
+  const [bookingSuccess, setBookingSuccess] = useState(false);
 
   const fetchRooms = async () => {
     try {
@@ -34,8 +36,8 @@ const Rooms = () => {
   useEffect(() => {
     if (location.state?.selectedRoom) {
       const room = location.state.selectedRoom;
-      // Only auto-open modal if the room is not occupied
-      if (!room.occupied) {
+      // Only auto-open modal if the room is available
+      if (!room.occupied && room.status === 'AVAILABLE') {
         setSelectedRoom(room);
       }
     }
@@ -54,13 +56,12 @@ const Rooms = () => {
   const handleCheckIn = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post(`${API_BASE}/book`, {
+      const res = await axios.post(`${API_BASE}/book`, {
         roomNumber: selectedRoom.roomNumber,
         ...formData
       });
-      alert(`Room ${selectedRoom.roomNumber} booked successfully!`);
-      setSelectedRoom(null);
-      setFormData({ firstName: "", lastName: "", phone: "", idProof: "", nights: 1 });
+      setRoomCredentials({ username: res.data.portalUsername, password: res.data.portalPassword });
+      setBookingSuccess(true);
       fetchRooms();
     } catch (error: any) {
       alert(error.response?.data?.message || "Booking failed");
@@ -124,6 +125,13 @@ const Rooms = () => {
                 >
                   Process Check-Out
                 </button>
+              ) : room.status !== 'AVAILABLE' ? (
+                <button 
+                  disabled
+                  className="flex-1 bg-stone-800 text-stone-500 py-3 rounded-xl text-xs font-bold uppercase tracking-widest opacity-50 cursor-not-allowed border border-stone-700"
+                >
+                  Cleaning In Progress
+                </button>
               ) : (
                 <button 
                   onClick={() => setSelectedRoom(room)}
@@ -157,15 +165,49 @@ const Rooms = () => {
                             <h2 className="text-2xl font-serif text-stone-100">Guest Check-In</h2>
                             <p className="text-stone-500 text-xs uppercase tracking-widest mt-1">Room {selectedRoom.roomNumber} - {selectedRoom.roomType}</p>
                         </div>
-                        <button onClick={() => setSelectedRoom(null)} className="p-2 text-stone-500 hover:text-stone-100 transition-colors">
+                        <button onClick={() => {
+                            setSelectedRoom(null);
+                            setBookingSuccess(false);
+                            setRoomCredentials(null);
+                            setFormData({ firstName: "", lastName: "", phone: "", idProof: "", nights: 1 });
+                        }} className="p-2 text-stone-500 hover:text-stone-100 transition-colors">
                             <X size={20} />
                         </button>
                     </div>
 
+                    {bookingSuccess && roomCredentials ? (
+                        <div className="py-8 text-center">
+                            <div className="w-16 h-16 bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <CheckCircle size={32} />
+                            </div>
+                            <h3 className="text-2xl font-serif text-stone-100 mb-2">Check-In Complete</h3>
+                            <p className="text-stone-400 text-sm mb-6">Please provide these credentials to the guest for portal access.</p>
+                            
+                            <div className="bg-stone-950 p-6 rounded-2xl border border-stone-800 mb-6 font-mono text-left space-y-4">
+                                <div>
+                                    <p className="text-[10px] text-stone-500 font-bold uppercase tracking-widest mb-1">Portal Username</p>
+                                    <p className="text-amber-500 text-xl font-bold">{roomCredentials.username}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] text-stone-500 font-bold uppercase tracking-widest mb-1">Portal Password</p>
+                                    <p className="text-amber-500 text-xl font-bold">{roomCredentials.password}</p>
+                                </div>
+                            </div>
+                            
+                            <button onClick={() => {
+                                setSelectedRoom(null);
+                                setBookingSuccess(false);
+                                setRoomCredentials(null);
+                                setFormData({ firstName: "", lastName: "", phone: "", idProof: "", nights: 1 });
+                            }} className="w-full bg-stone-800 hover:bg-stone-700 text-stone-100 py-3 rounded-xl font-bold uppercase tracking-widest text-xs transition-all border border-stone-700">
+                                Close Window
+                            </button>
+                        </div>
+                    ) : (
                     <form onSubmit={handleCheckIn} className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1">
-                                <label className="text-[10px] uppercase text-stone-500 font-bold tracking-widest ml-1">First Name</label>
+                                <label className="text-xs uppercase text-stone-400 font-bold tracking-widest ml-1">First Name</label>
                                 <input 
                                     required
                                     className="w-full bg-stone-800 border border-stone-700 rounded-xl px-4 py-3 text-stone-100 focus:outline-none focus:border-amber-500/50 transition-colors"
@@ -174,7 +216,7 @@ const Rooms = () => {
                                 />
                             </div>
                             <div className="space-y-1">
-                                <label className="text-[10px] uppercase text-stone-500 font-bold tracking-widest ml-1">Last Name</label>
+                                <label className="text-xs uppercase text-stone-400 font-bold tracking-widest ml-1">Last Name</label>
                                 <input 
                                     required
                                     className="w-full bg-stone-800 border border-stone-700 rounded-xl px-4 py-3 text-stone-100 focus:outline-none focus:border-amber-500/50 transition-colors"
@@ -184,7 +226,7 @@ const Rooms = () => {
                             </div>
                         </div>
                         <div className="space-y-1">
-                            <label className="text-[10px] uppercase text-stone-500 font-bold tracking-widest ml-1">Phone Number</label>
+                            <label className="text-xs uppercase text-stone-400 font-bold tracking-widest ml-1">Phone Number</label>
                             <input 
                                 required
                                 type="tel"
@@ -194,7 +236,7 @@ const Rooms = () => {
                             />
                         </div>
                         <div className="space-y-1">
-                            <label className="text-[10px] uppercase text-stone-500 font-bold tracking-widest ml-1">ID Proof</label>
+                            <label className="text-xs uppercase text-stone-400 font-bold tracking-widest ml-1">ID Proof</label>
                             <input 
                                 required
                                 type="text"
@@ -204,7 +246,7 @@ const Rooms = () => {
                             />
                         </div>
                         <div className="space-y-1">
-                            <label className="text-[10px] uppercase text-stone-500 font-bold tracking-widest ml-1">Number of Nights</label>
+                            <label className="text-xs uppercase text-stone-400 font-bold tracking-widest ml-1">Number of Nights</label>
                             <input 
                                 required
                                 type="number"
@@ -222,6 +264,7 @@ const Rooms = () => {
                             Confirm Booking
                         </button>
                     </form>
+                    )}
                 </motion.div>
             </motion.div>
         )}

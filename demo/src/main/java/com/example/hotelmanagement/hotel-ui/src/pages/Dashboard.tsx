@@ -4,7 +4,7 @@ import { Bed, IndianRupee, Users, CheckCircle2, TrendingUp, ArrowRight, Clock } 
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE = process.env.REACT_APP_API_URL || "/api";
+const API_BASE = "http://localhost:8080/api";
 
 interface Room {
   roomNumber: number;
@@ -59,6 +59,7 @@ const Dashboard = () => {
     { label: "Available", value: available, icon: CheckCircle2, color: "bg-emerald-500/10 text-emerald-400", borderColor: "border-emerald-500/20" },
     { label: "Occupied", value: occupied, icon: Users, color: "bg-amber-500/10 text-amber-400", borderColor: "border-amber-500/20" },
     { label: "Occupancy Rate", value: `${occupancyRate}%`, icon: TrendingUp, color: "bg-purple-500/10 text-purple-400", borderColor: "border-purple-500/20" },
+    { label: "Daily Revenue", value: `₹${todaysRevenue.toLocaleString()}`, icon: IndianRupee, color: "bg-amber-500/10 text-amber-400", borderColor: "border-amber-500/30" },
   ];
 
   if (loading) return <div className="h-screen flex items-center justify-center bg-stone-900 text-white">Loading...</div>;
@@ -71,7 +72,7 @@ const Dashboard = () => {
       </header>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
         {stats.map((stat, i) => (
           <motion.div
             key={stat.label}
@@ -91,28 +92,7 @@ const Dashboard = () => {
         ))}
       </div>
 
-      {/* Revenue Banner */}
-      {todaysRevenue > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-amber-600/10 to-amber-500/5 border border-amber-500/20 rounded-2xl p-6 flex items-center justify-between"
-        >
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-amber-500/10 text-amber-400"><IndianRupee size={20} /></div>
-            <div>
-              <p className="text-xs text-amber-500/70 uppercase tracking-wider font-bold">Active Bookings Revenue</p>
-              <p className="text-2xl font-serif text-amber-400">₹{todaysRevenue.toLocaleString()}</p>
-            </div>
-          </div>
-          <button
-            onClick={() => navigate("/admin/bookings")}
-            className="flex items-center gap-2 text-xs text-amber-500 hover:text-amber-400 font-bold uppercase tracking-widest transition-colors"
-          >
-            View Details <ArrowRight size={14} />
-          </button>
-        </motion.div>
-      )}
+
 
       {/* Active Bookings Section */}
       {bookings.length > 0 && (

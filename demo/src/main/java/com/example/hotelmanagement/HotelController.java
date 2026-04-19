@@ -13,6 +13,12 @@ public class HotelController {
     private final HotelManager hotelService;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+
+    @Autowired
     public HotelController(HotelManager hotelService) {
         this.hotelService = hotelService;
     }
@@ -27,7 +33,7 @@ public class HotelController {
             r.put("roomType", room.getRoomType());
             r.put("basePrice", room.getBasePrice());
             r.put("occupied", room.isOccupied());
-            r.put("status", room.isOccupied() ? "occupied" : "available");
+            r.put("status", room.getStatus().name());
             // Attach guest details if booked
             String guestName = hotelService.getGuestForRoom(room.getRoomNumber());
             r.put("guest", guestName);
@@ -106,10 +112,25 @@ public class HotelController {
             boolean ok   = hotelService.bookRoom(roomNumber, guest, duration);
 
             if (ok) {
+                // Generates Digital Room Keys
+                String username = "room" + roomNumber;
+                String rawPassword = UUID.randomUUID().toString().substring(0, 6).toUpperCase();
+                
+                User existingUser = userRepository.findByUsername(username).orElse(null);
+                if (existingUser != null) {
+                    existingUser.setPassword(passwordEncoder.encode(rawPassword));
+                    existingUser.setFullName(name);
+                    userRepository.save(existingUser);
+                } else {
+                    userRepository.save(new User(username, passwordEncoder.encode(rawPassword), name, UserRole.CUSTOMER));
+                }
+
                 response.put("success", true);
                 response.put("message", "Booking confirmed for room " + roomNumber);
                 response.put("roomNumber", roomNumber);
                 response.put("guest", name);
+                response.put("portalUsername", username);
+                response.put("portalPassword", rawPassword);
                 return ResponseEntity.ok(response);
             } else {
                 response.put("success", false);
@@ -129,6 +150,13 @@ public class HotelController {
         Map<String, Object> response = new LinkedHashMap<>();
         Map<String, Object> bill = hotelService.checkOut(roomNumber);
         if (bill != null) {
+            // Revoke Digital Room Key Access
+            User existingUser = userRepository.findByUsername("room" + roomNumber).orElse(null);
+            if (existingUser != null) {
+                existingUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+                userRepository.save(existingUser);
+            }
+
             response.put("success", true);
             response.putAll(bill);
             return ResponseEntity.ok(response);
@@ -149,5 +177,51 @@ public class HotelController {
     @GetMapping("/guests")
     public List<Guest> getAllGuests() {
         return hotelService.getAllGuests();
+    }
+
+    // ─── Extra Services ────────────────────────────────────────────────
+    @PostMapping("/bookings/{roomNumber}/services")
+    public ResponseEntity<Map<String, Object>> addService(@PathVariable int roomNumber, @RequestBody Map<String, Object> payload) {
+        String serviceName = payload.get("serviceName").toString();
+        double price = Double.parseDouble(payload.get("price").toString());
+        boolean ok = hotelService.addServiceToRoom(roomNumber, serviceName, price);
+        
+        Map<String, Object> res = new HashMap<>();
+        res.put("success", ok);
+        if (ok) {
+            res.put("message", "Service added");
+            return ResponseEntity.ok(res);
+        } else {
+            res.put("message", "Could not find active booking for room " + roomNumber);
+            return ResponseEntity.badRequest().body(res);
+        }
+    }
+
+    @GetMapping("/services/pending")
+    public List<Map<String, Object>> getPendingServices() {
+        return hotelService.getPendingServices();
+    }
+
+    @PostMapping("/services/{id}/complete")
+    public ResponseEntity<String> completeService(@PathVariable long id) {
+        if (hotelService.completeService(id)) {
+            return ResponseEntity.ok("Service completed");
+        }
+        return ResponseEntity.badRequest().body("Service not found");
+    }
+
+    // ─── Cleaning ──────────────────────────────────────────────────────
+    @PostMapping("/rooms/{roomNumber}/ready")
+    public ResponseEntity<Map<String, Object>> markRoomReady(@PathVariable int roomNumber) {
+        boolean ok = hotelService.markRoomReady(roomNumber);
+        Map<String, Object> res = new HashMap<>();
+        res.put("success", ok);
+        if (ok) {
+            res.put("message", "Room ready");
+            return ResponseEntity.ok(res);
+        } else {
+            res.put("message", "Room not found or couldn't be marked ready");
+            return ResponseEntity.badRequest().body(res);
+        }
     }
 }

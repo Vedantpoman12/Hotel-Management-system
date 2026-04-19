@@ -3,7 +3,7 @@ import axios from "axios";
 import { User, Calendar, Phone, History, MapPin, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const API_BASE = process.env.REACT_APP_API_URL || "/api";
+const API_BASE = "http://localhost:8080/api";
 
 const Bookings = () => {
   const [activeBookings, setActiveBookings] = useState([]);
@@ -54,7 +54,7 @@ const Bookings = () => {
                     activeTab === 'history' ? 'bg-amber-600 text-stone-950 shadow-lg' : 'text-stone-500 hover:text-stone-300'
                 }`}
             >
-                Guest History
+                Guest Records
             </button>
         </div>
       </div>
@@ -70,7 +70,7 @@ const Bookings = () => {
           >
             <div className="bg-stone-900/50 border border-stone-800 rounded-3xl overflow-hidden backdrop-blur-md">
                 <table className="w-full text-left">
-                    <thead className="bg-stone-800/50 text-stone-500 text-[10px] uppercase font-bold tracking-[0.2em]">
+                    <thead className="bg-stone-800/50 text-stone-300 text-[10px] uppercase font-bold tracking-[0.2em]">
                         <tr>
                             <th className="p-6">Guest Details</th>
                             <th className="p-6">Room Assigned</th>
@@ -152,7 +152,7 @@ const Bookings = () => {
                         </div>
                         <h3 className="text-xl font-bold text-stone-100 mb-1">{g.name}</h3>
                         <p className="text-stone-500 text-xs mb-4 flex items-center gap-1.5 uppercase tracking-widest font-bold">
-                            <MapPin size={12} /> {g.idProof || "N/A"}
+                            <MapPin size={12} /> {g.idProof && g.idProof !== "N/A" ? g.idProof : <span className="opacity-50 italic">Unprovided</span>}
                         </p>
                         
                         <div className="space-y-3 pt-4 border-t border-stone-800">
@@ -162,7 +162,9 @@ const Bookings = () => {
                             </div>
                             <div className="flex justify-between text-xs">
                                 <span className="text-stone-600 uppercase font-bold tracking-widest">ID Reference</span>
-                                <span className="text-stone-300 truncate max-w-[120px]">{g.idProof}</span>
+                                <span className="text-stone-300 truncate max-w-[120px]">
+                                    {g.idProof && g.idProof !== "N/A" ? g.idProof : <span className="opacity-50 italic text-stone-500">Unprovided</span>}
+                                </span>
                             </div>
                         </div>
                     </motion.div>

@@ -52,10 +52,10 @@ const GuestManagement = () => {
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className="bg-stone-950/50 border-b border-stone-800">
-                            <th className="px-8 py-6 text-[10px] uppercase tracking-widest text-stone-500 font-bold">Guest Particulars</th>
-                            <th className="px-8 py-6 text-[10px] uppercase tracking-widest text-stone-500 font-bold">Contact</th>
-                            <th className="px-8 py-6 text-[10px] uppercase tracking-widest text-stone-500 font-bold">Identity Proof</th>
-                            <th className="px-8 py-6 text-[10px] uppercase tracking-widest text-stone-500 font-bold text-right">Reference ID</th>
+                            <th className="px-8 py-6 text-[10px] uppercase tracking-widest text-stone-300 font-bold">Guest Particulars</th>
+                            <th className="px-8 py-6 text-[10px] uppercase tracking-widest text-stone-300 font-bold">Contact</th>
+                            <th className="px-8 py-6 text-[10px] uppercase tracking-widest text-stone-300 font-bold">Identity Proof</th>
+                            <th className="px-8 py-6 text-[10px] uppercase tracking-widest text-stone-300 font-bold text-right">Reference ID</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-stone-800/50">
@@ -82,7 +82,8 @@ const GuestManagement = () => {
                                 </td>
                                 <td className="px-8 py-6">
                                     <div className="flex items-center gap-2 text-stone-400 text-sm">
-                                        <Fingerprint size={14} className="text-stone-600" /> {guest.idProof}
+                                        <Fingerprint size={14} className="text-stone-600" /> 
+                                        {guest.idProof && guest.idProof !== "N/A" ? guest.idProof : <span className="opacity-50 italic text-stone-500">Unprovided</span>}
                                     </div>
                                 </td>
                                 <td className="px-8 py-6 text-right font-mono text-[10px] text-stone-600">
