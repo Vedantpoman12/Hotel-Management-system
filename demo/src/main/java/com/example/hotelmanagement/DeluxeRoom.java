@@ -1,6 +1,13 @@
 package com.example.hotelmanagement;
 
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+
+@Entity
+@DiscriminatorValue("Deluxe")
 public class DeluxeRoom extends Room {
+    public DeluxeRoom() {}
+
     public DeluxeRoom(int roomNumber) {
         super(roomNumber, 2800.0);
     }
