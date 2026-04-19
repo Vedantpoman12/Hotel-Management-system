@@ -9,5 +9,3 @@ target
 mvnw
 mvnw.cmd
 system.properties
-railway.json
-render.yaml
