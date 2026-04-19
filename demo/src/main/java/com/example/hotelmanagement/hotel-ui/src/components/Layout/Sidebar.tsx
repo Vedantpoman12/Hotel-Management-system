@@ -6,14 +6,20 @@ import {
   Users, 
   Settings, 
   LogOut,
-  Hotel
+  Hotel,
+  Calendar as BookingsIcon,
+  Sparkles,
+  Coffee
 } from 'lucide-react';
 
 const Sidebar = () => {
   const menuItems = [
     { icon: LayoutDashboard, label: 'Overview', path: '/admin' },
     { icon: DoorOpen, label: 'Rooms', path: '/admin/rooms' },
-    { icon: Users, label: 'Guests', path: '/admin/bookings' },
+    { icon: BookingsIcon, label: 'Bookings', path: '/admin/bookings' },
+    { icon: Users, label: 'Guests', path: '/admin/guests' },
+    { icon: Sparkles, label: 'Cleaning', path: '/admin/cleaning' },
+    { icon: Coffee, label: 'Services', path: '/admin/services' },
   ];
 
   return (
